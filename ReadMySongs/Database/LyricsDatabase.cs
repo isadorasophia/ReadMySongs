@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 
-namespace ReadMySongs
+namespace ReadMySongs.Database
 {
     static class LyricsDatabase
     {
         public static Dictionary<string, string> Songs = new Dictionary<string, string>
         {
             {
-                "IslandSong", 
+                "Island Song", 
                     "Come along with me\n" +
                     "And the butterflies and bees\n" +
                     "We can wander through the forest\n" +

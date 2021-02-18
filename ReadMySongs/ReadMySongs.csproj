@@ -41,8 +41,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LyricsDatabase.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Database\PlaylistsDatabase.cs" />
+    <Compile Include="Database\LyricsDatabase.cs" />
+    <Compile Include="Utilities\Helpers.cs" />
+    <Compile Include="Lyrics.cs" />
+    <Compile Include="Playlist.cs" />
+    <Compile Include="Song.cs" />
+    <Compile Include="_Entrypoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
