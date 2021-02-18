@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{ED340611-08BD-4EFC-8806-5907DDDD7287}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>console_framework35</RootNamespace>
-    <AssemblyName>console_framework35</AssemblyName>
+    <RootNamespace>ReadMySongs</RootNamespace>
+    <AssemblyName>ReadMySongs</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
