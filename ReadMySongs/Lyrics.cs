@@ -4,10 +4,12 @@ namespace ReadMySongs
 {
     public class Lyrics
     {
+        public readonly Song Song;
         public string Content { get; private set; }
 
-        public Lyrics(string content)
+        public Lyrics(Song song, string content)
         {
+            Song = song;
             Content = content;
         }
 

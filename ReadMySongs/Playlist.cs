@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using ReadMySongs.Database;
 using ReadMySongs.Utilities;
 
@@ -16,6 +17,8 @@ namespace ReadMySongs
         private List<Song> _cachedSongs;
         private string _completeName;
 
+        private object _locker = new object();
+
         public Playlist(string name)
         {
             _name = name;
@@ -27,26 +30,60 @@ namespace ReadMySongs
         /// <returns>
         /// The song that its lyrics has <paramref name="text"/>. Otherwise, return null.
         /// </returns>
-        public Song TryFindSong(string text)
+        public Task<Song> TryFindSong(string text)
         {
-            foreach (Song song in FetchSongs())
+            Task<List<Song>> fetchSongsTask = new Task<List<Song>>(FetchSongs);
+            fetchSongsTask.Start();
+
+            List<Song> candidateSongs = new List<Song>();
+
+            Task<List<Task>> fetchLyricsTask = fetchSongsTask.ContinueWith(t =>
             {
-                Lyrics lyrics = song.FetchLyrics();
+                NotifyUser();
 
-                if (lyrics != null && lyrics.HasText(text))
+                List<Task> matchLyricsTasks = new List<Task>();
+                foreach (Song song in t.Result)
                 {
-                    return song;
-                }
-            }
+                    Task<Lyrics> tt = new Task<Lyrics>(song.FetchLyrics);
+                    tt.Start();
 
-            return null;
+                    Task matchLyricsTask = tt.ContinueWith(ttt =>
+                    {
+                        Lyrics lyrics = ttt.Result;
+                        if (lyrics != null && lyrics.HasText(text))
+                        {
+                            lock (_locker)
+                            {
+                                candidateSongs.Add(lyrics.Song);
+                            }
+                        }
+                    }, TaskScheduler.Default);
+
+                    matchLyricsTasks.Add(matchLyricsTask);
+                }
+
+                return matchLyricsTasks;
+            }, TaskScheduler.Default);
+
+            Task<Song> findTargetSongTask = fetchLyricsTask.ContinueWith(t =>
+            {
+                Task[] matchSongTasks = fetchLyricsTask.Result.ToArray();
+                Task.WaitAll(matchSongTasks);
+
+                return candidateSongs.FirstOrDefault();
+            });
+
+            return findTargetSongTask;
         }
 
         public List<Song> FetchSongs()
         {
             if (_cachedSongs == null)
             {
+                Task t = NotifyUser();
+
                 _cachedSongs = DoSongsRequest();
+                t.Start();
             }
 
             return _cachedSongs;
@@ -87,6 +124,14 @@ namespace ReadMySongs
             Thread.Sleep(10);
 
             return PlaylistsDatabase.Playlists.TryGetValue(_completeName, out songs);
+        }
+
+        private Task NotifyUser()
+        {
+            return new Task(() =>
+            {
+                Thread.Sleep(10);
+            });
         }
 
         #endregion

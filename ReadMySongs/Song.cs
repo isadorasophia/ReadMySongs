@@ -24,7 +24,7 @@ namespace ReadMySongs
                 string lyrics = DoLyricsRequest();
                 if (lyrics != null)
                 {
-                    _cachedLyrics = new Lyrics(lyrics);
+                    _cachedLyrics = new Lyrics(this, lyrics);
                 }
             }
 
