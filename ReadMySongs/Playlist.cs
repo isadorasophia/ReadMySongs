@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using ReadMySongs.Database;
 using ReadMySongs.Utilities;
@@ -48,10 +48,9 @@ namespace ReadMySongs
         {
             if (_cachedSongs == null)
             {
-                Task t = NotifyUser();
-
                 _cachedSongs = await DoSongsRequest();
-                t.Start();
+
+                NotifyUser();
             }
 
             return _cachedSongs;
@@ -107,12 +106,11 @@ namespace ReadMySongs
             return null;
         }
 
-        private Task NotifyUser()
+        private async Task NotifyUser()
         {
-            return new Task(() =>
-            {
-                Thread.Sleep(10);
-            });
+            await Task.Delay(10);
+
+            Console.WriteLine("Hey! Notification!");
         }
 
         #endregion
