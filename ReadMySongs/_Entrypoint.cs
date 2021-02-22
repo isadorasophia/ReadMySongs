@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 namespace ReadMySongs
 {
@@ -13,20 +12,22 @@ namespace ReadMySongs
             Console.WriteLine("Please type what is in your mind:");
             string text = Console.ReadLine();
 
-            Playlist playlist = new Playlist(playlistName);
+            Playlist playlist = new(playlistName);
 
-            Task<Song> task = playlist.TryFindSong(text);
-            task.Wait();
-            Song song = task.Result;
+            Song song = playlist.TryFindSong(text).Result;
 
-            Lyrics lyrics = song.FetchLyrics();
+            if (song != null)
+            {
+                Lyrics lyrics = song.FetchLyrics().Result;
 
-            Console.WriteLine("Good news! There you go:");
-            Console.WriteLine("** {0} **", song.Name);
-            Console.WriteLine(lyrics.Content);
-
-            // Wait to exit...
-            Console.ReadKey();
+                Console.WriteLine("Good news! There you go:");
+                Console.WriteLine("** {0} **", song.Name);
+                Console.WriteLine(lyrics.Content);
+            }
+            else
+            {
+                Console.WriteLine("Song not found, sorry :(");
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Threading;
+﻿using System.Threading.Tasks;
 using ReadMySongs.Database;
 
 namespace ReadMySongs
@@ -17,11 +17,11 @@ namespace ReadMySongs
         /// <summary>
         /// Fetch lyrics for the song. If none was found, return null.
         /// </summary>
-        public Lyrics FetchLyrics()
+        public async Task<Lyrics> FetchLyrics()
         {
             if (_cachedLyrics == null)
             {
-                string lyrics = DoLyricsRequest();
+                string lyrics = await DoLyricsRequest();
                 if (lyrics != null)
                 {
                     _cachedLyrics = new Lyrics(this, lyrics);
@@ -31,22 +31,24 @@ namespace ReadMySongs
             return _cachedLyrics;
         }
 
-        private string DoLyricsRequest()
+        private async Task<string> DoLyricsRequest()
         {
-            string lyrics;
-            TryGetLyricsWebRequest(out lyrics);
-
-            return lyrics;
+            return await TryGetLyricsWebRequest();
         }
 
         #region Web APIs
 
-        private bool TryGetLyricsWebRequest(out string lyrics)
+        private async Task<string> TryGetLyricsWebRequest()
         {
             // Web request...
-            Thread.Sleep(10);
+            await Task.Delay(10);
 
-            return LyricsDatabase.Songs.TryGetValue(Name, out lyrics);
+            if (LyricsDatabase.Songs.TryGetValue(Name, out string lyrics))
+            {
+                return lyrics;
+            }
+
+            return null;
         }
 
         #endregion

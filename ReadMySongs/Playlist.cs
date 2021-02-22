@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,8 +18,6 @@ namespace ReadMySongs
         private List<Song> _cachedSongs;
         private string _completeName;
 
-        private object _locker = new object();
-
         public Playlist(string name)
         {
             _name = name;
@@ -30,75 +29,43 @@ namespace ReadMySongs
         /// <returns>
         /// The song that its lyrics has <paramref name="text"/>. Otherwise, return null.
         /// </returns>
-        public Task<Song> TryFindSong(string text)
+        public async Task<Song> TryFindSong(string text)
         {
-            Task<List<Song>> fetchSongsTask = new Task<List<Song>>(FetchSongs);
-            fetchSongsTask.Start();
-
-            List<Song> candidateSongs = new List<Song>();
-
-            Task<List<Task>> fetchLyricsTask = fetchSongsTask.ContinueWith(t =>
+            foreach (Song song in await FetchSongs())
             {
-                NotifyUser();
+                Lyrics lyrics = await song.FetchLyrics();
 
-                List<Task> matchLyricsTasks = new List<Task>();
-                foreach (Song song in t.Result)
+                if (lyrics != null && lyrics.HasText(text))
                 {
-                    Task<Lyrics> tt = new Task<Lyrics>(song.FetchLyrics);
-                    tt.Start();
-
-                    Task matchLyricsTask = tt.ContinueWith(ttt =>
-                    {
-                        Lyrics lyrics = ttt.Result;
-                        if (lyrics != null && lyrics.HasText(text))
-                        {
-                            lock (_locker)
-                            {
-                                candidateSongs.Add(lyrics.Song);
-                            }
-                        }
-                    }, TaskScheduler.Default);
-
-                    matchLyricsTasks.Add(matchLyricsTask);
+                    return song;
                 }
+            }
 
-                return matchLyricsTasks;
-            }, TaskScheduler.Default);
-
-            Task<Song> findTargetSongTask = fetchLyricsTask.ContinueWith(t =>
-            {
-                Task[] matchSongTasks = fetchLyricsTask.Result.ToArray();
-                Task.WaitAll(matchSongTasks);
-
-                return candidateSongs.FirstOrDefault();
-            });
-
-            return findTargetSongTask;
+            return null;
         }
 
-        public List<Song> FetchSongs()
+        public async Task<List<Song>> FetchSongs()
         {
             if (_cachedSongs == null)
             {
                 Task t = NotifyUser();
 
-                _cachedSongs = DoSongsRequest();
+                _cachedSongs = await DoSongsRequest();
                 t.Start();
             }
 
             return _cachedSongs;
         }
 
-        private List<Song> DoSongsRequest()
+        private async Task<List<Song>> DoSongsRequest()
         {
             // Best match
             if (_completeName == null)
             {
-                TryGetPlaylistFullNameWebRequest(out _completeName);
+                _completeName = await TryGetPlaylistFullNameWebRequest();
             }
 
-            List<string> songs;
-            if (_completeName != null && TryGetPlaylistSongsWebRequest(out songs))
+            if (await TryGetPlaylistSongsWebRequest() is List<string> songs)
             {
                 return songs.Select(s => new Song(s)).ToList();
             }
@@ -108,22 +75,36 @@ namespace ReadMySongs
 
         #region Web APIs
 
-        private bool TryGetPlaylistFullNameWebRequest(out string fullName)
+        private async Task<string> TryGetPlaylistFullNameWebRequest()
         {
             // Web request...
-            Thread.Sleep(10);
+            await Task.Delay(10);
 
-            fullName = PlaylistsDatabase.Playlists.Keys.FirstOrDefault(p => p.ContainsIgnoreCase(_name));
+            if (PlaylistsDatabase.Playlists.Keys.FirstOrDefault(p => p.ContainsIgnoreCase(_name)) is string fullName)
+            {
+                return fullName;
+            }
 
-            return fullName != null;
+            return null;
         }
 
-        private bool TryGetPlaylistSongsWebRequest(out List<string> songs)
+        private async Task<List<string>> TryGetPlaylistSongsWebRequest()
         {
-            // Web request...
-            Thread.Sleep(10);
+            if (_completeName == null)
+            {
+                Debug.Fail("Why we do not have the complete name at this point?");
+                return null;
+            }
 
-            return PlaylistsDatabase.Playlists.TryGetValue(_completeName, out songs);
+            // Web request...
+            await Task.Delay(10);
+
+            if (PlaylistsDatabase.Playlists.TryGetValue(_completeName, out List<string> songs))
+            {
+                return songs;
+            }
+
+            return null;
         }
 
         private Task NotifyUser()
