@@ -1,18 +1,8 @@
-﻿using Microsoft.VisualStudio.Threading;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace AsyncSongs
 {
@@ -21,10 +11,6 @@ namespace AsyncSongs
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly JoinableTaskContext joinableTaskContext = new JoinableTaskContext();
-        private readonly JoinableTaskFactory joinableTaskFactory;
-        private readonly JoinableTaskCollection joinableTaskCollection;
-
         const string defaultPlaylistTextBoxContent = "Playlist name goes here...";
         const string defaultLyricsTextBoxContent = "Lyrics go here...";
         const string songLabelPrefix = "Song Name:";
@@ -34,9 +20,29 @@ namespace AsyncSongs
             InitializeComponent();
             
             HideProgressElements();
-            
-            this.joinableTaskCollection = this.joinableTaskContext.CreateCollection();
-            this.joinableTaskFactory = this.joinableTaskContext.CreateFactory(this.joinableTaskCollection);
+        }
+
+        private async Task<Song> SearchSongAsync(string text, string playlistName = null)
+        {
+            List<Playlist> playlists = new();
+            if (playlistName is null)
+            {
+                // Search through all playlists instead.
+                // playlists = await FetchPlaylists();
+            }
+            else
+            {
+                playlists.Add(new(playlistName));
+            }
+
+            List<Task<Song>> tasks = new();
+            foreach (Playlist playlist in playlists)
+            {
+                tasks.Add(playlist.TryFindSongAsync(text));
+            }
+
+            Song[] songs = await Task.WhenAll(tasks);
+            return songs.FirstOrDefault(s => s is not null);
         }
 
         private void searchButton_Click(object sender, RoutedEventArgs e)
@@ -55,26 +61,36 @@ namespace AsyncSongs
             {
                 ShowProgressElements();
 
-                Playlist playlist = new(playlistTextBox.Text);
+                var text = lyricsTextBox.Text;
+                var playlist = playlistTextBox.Text;
 
-                this.joinableTaskFactory.RunAsync(async delegate
+                var songSearchingTask = Task.Run(async delegate
                 {
-                    Song song = await playlist.TryFindSong(lyricsTextBox.Text);
+                    Song song = await SearchSongAsync(text, playlist);
 
                     if (song != null)
                     {
                         Lyrics lyrics = await song.FetchLyrics();
 
-                        songLabel.Content = $"{songLabelPrefix} {song.Name}.";
+                        Dispatcher.Invoke(() => 
+                        { 
+                            songLabel.Content = $"{songLabelPrefix} {song.Name}."; 
+                        });
                     }
                     else
                     {
-                        songLabel.Content = $"{songLabelPrefix} Not found.";
+                        Dispatcher.Invoke(() =>
+                        {
+                            songLabel.Content = $"{songLabelPrefix} Not found.";
+                        });
                     }
 
-                    HideProgressElements();
-                    searchButton.IsEnabled = true;
-                });
+                    Dispatcher.Invoke(() =>
+                    {
+                        HideProgressElements();
+                        searchButton.IsEnabled = true;
+                    });
+                }).ConfigureAwait(false);
             }
         }
 
@@ -82,7 +98,8 @@ namespace AsyncSongs
         {
             loginButton.IsEnabled = false;
 
-            this.joinableTaskFactory.RunAsync(async delegate
+            // Fire and forget...
+            var t = Task.Run(async delegate
             {
                 await Task.Delay(3000);
                 loginButton.IsEnabled = true;

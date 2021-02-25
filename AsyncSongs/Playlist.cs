@@ -27,7 +27,7 @@ namespace AsyncSongs
         /// <returns>
         /// The song that its lyrics has <paramref name="text"/>. Otherwise, return null.
         /// </returns>
-        public async Task<Song> TryFindSong(string text)
+        public async Task<Song> TryFindSongAsync(string text)
         {
             foreach (Song song in await FetchSongs())
             {
