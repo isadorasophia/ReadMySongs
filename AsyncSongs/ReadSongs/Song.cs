@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using AsyncSongs.WebRequests;
+using System.Threading.Tasks;
 
 namespace AsyncSongs
 {
@@ -42,7 +43,7 @@ namespace AsyncSongs
             // Web request...
             await Task.Delay(10_000);
 
-            if (LyricsDatabase.Songs.TryGetValue(Name, out string lyrics))
+            if (MockLyricsDatabase.Songs.TryGetValue(Name, out string lyrics))
             {
                 return lyrics;
             }

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace AsyncSongs
+namespace AsyncSongs.WebRequests
 {
-    static class PlaylistsDatabase
+    static class MockPlaylistsDatabase
     {
         public static Dictionary<string, List<string>> Playlists = new Dictionary<string, List<string>>
         {

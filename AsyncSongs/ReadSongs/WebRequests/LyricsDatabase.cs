@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace AsyncSongs
+namespace AsyncSongs.WebRequests
 {
-    static class LyricsDatabase
+    static class MockLyricsDatabase
     {
         public static Dictionary<string, string> Songs = new Dictionary<string, string>
         {

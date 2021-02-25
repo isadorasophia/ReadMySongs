@@ -11,9 +11,9 @@ namespace AsyncSongs
     /// </summary>
     public partial class MainWindow : Window
     {
-        const string defaultPlaylistTextBoxContent = "Playlist name goes here...";
-        const string defaultLyricsTextBoxContent = "Lyrics go here...";
-        const string songLabelPrefix = "Song Name:";
+        private const string DefaultPlaylistTextBoxContent = "Playlist name goes here...";
+        private const string DefaultLyricsTextBoxContent = "Lyrics go here...";
+        private const string SongLabelPrefix = "Song Name:";
 
         public MainWindow()
         {
@@ -22,38 +22,15 @@ namespace AsyncSongs
             HideProgressElements();
         }
 
-        private async Task<Song> SearchSongAsync(string text, string playlistName = null)
-        {
-            List<Playlist> playlists = new();
-            if (playlistName is null)
-            {
-                // Search through all playlists instead.
-                // playlists = await FetchPlaylists();
-            }
-            else
-            {
-                playlists.Add(new(playlistName));
-            }
-
-            List<Task<Song>> tasks = new();
-            foreach (Playlist playlist in playlists)
-            {
-                tasks.Add(playlist.TryFindSongAsync(text));
-            }
-
-            Song[] songs = await Task.WhenAll(tasks);
-            return songs.FirstOrDefault(s => s is not null);
-        }
-
         private void searchButton_Click(object sender, RoutedEventArgs e)
         {
             searchButton.IsEnabled = false;
 
-            if (lyricsTextBox.Text == defaultLyricsTextBoxContent || lyricsTextBox.Text == string.Empty)
+            if (lyricsTextBox.Text == DefaultLyricsTextBoxContent || lyricsTextBox.Text == string.Empty)
             {
                 // error
             }
-            else if (playlistTextBox.Text == defaultPlaylistTextBoxContent || playlistTextBox.Text == string.Empty)
+            else if (playlistTextBox.Text == DefaultPlaylistTextBoxContent || playlistTextBox.Text == string.Empty)
             {
                 // error
             }
@@ -66,25 +43,13 @@ namespace AsyncSongs
 
                 var songSearchingTask = Task.Run(async delegate
                 {
-                    Song song = await SearchSongAsync(text, playlist);
-
-                    if (song != null)
-                    {
-                        Dispatcher.Invoke(() => 
-                        { 
-                            songLabel.Content = $"{songLabelPrefix} {song.Name}."; 
-                        });
-                    }
-                    else
-                    {
-                        Dispatcher.Invoke(() =>
-                        {
-                            songLabel.Content = $"{songLabelPrefix} Not found.";
-                        });
-                    }
+                    Song song = await ReadSongsService.SearchSong(text, playlist);
 
                     Dispatcher.Invoke(() =>
                     {
+                        songLabel.Content = song != null ? $"{SongLabelPrefix} {song.Name}." :
+                            $"{SongLabelPrefix} Not found.";
+
                         HideProgressElements();
                         searchButton.IsEnabled = true;
                     });
@@ -106,7 +71,7 @@ namespace AsyncSongs
 
         private void playlistTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (sender is TextBox playlistTextBox && playlistTextBox.Text == defaultPlaylistTextBoxContent)
+            if (sender is TextBox playlistTextBox && playlistTextBox.Text == DefaultPlaylistTextBoxContent)
             {
                 playlistTextBox.Text = string.Empty;
             }
@@ -116,13 +81,13 @@ namespace AsyncSongs
         {
             if (sender is TextBox playlistTextBox && playlistTextBox.Text == string.Empty)
             {
-                playlistTextBox.Text = defaultPlaylistTextBoxContent;
+                playlistTextBox.Text = DefaultPlaylistTextBoxContent;
             }
         }
 
         private void lyricsTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (sender is TextBox lyricsTextBox && lyricsTextBox.Text == defaultLyricsTextBoxContent)
+            if (sender is TextBox lyricsTextBox && lyricsTextBox.Text == DefaultLyricsTextBoxContent)
             {
                 lyricsTextBox.Text = string.Empty;
             }
@@ -132,7 +97,7 @@ namespace AsyncSongs
         {
             if (sender is TextBox lyricsTextBox && lyricsTextBox.Text == string.Empty)
             {
-                lyricsTextBox.Text = defaultLyricsTextBoxContent;
+                lyricsTextBox.Text = DefaultLyricsTextBoxContent;
             }
         }
 
