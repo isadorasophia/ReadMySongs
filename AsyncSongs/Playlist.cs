@@ -6,7 +6,7 @@ namespace AsyncSongs
     class Playlist
     {
         /// <summary>
-        /// Name which has been passed down by user.
+        /// Name which has been passed down by user
         /// </summary>
         private readonly string _name;
 
