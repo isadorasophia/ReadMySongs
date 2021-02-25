@@ -70,8 +70,6 @@ namespace AsyncSongs
 
                     if (song != null)
                     {
-                        Lyrics lyrics = await song.FetchLyrics();
-
                         Dispatcher.Invoke(() => 
                         { 
                             songLabel.Content = $"{songLabelPrefix} {song.Name}."; 

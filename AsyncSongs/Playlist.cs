@@ -29,17 +29,28 @@ namespace AsyncSongs
         /// </returns>
         public async Task<Song> TryFindSongAsync(string text)
         {
+            List<Task<Song>> songsToSearch = new();
+
             foreach (Song song in await FetchSongs())
             {
-                Lyrics lyrics = await song.FetchLyrics();
-
-                if (lyrics != null && lyrics.HasText(text))
+                Task<Song> compareLyrics = Task.Run(async () =>
                 {
-                    return song;
-                }
+                    Lyrics lyrics = await song.FetchLyrics();
+
+                    if (lyrics != null && lyrics.HasText(text))
+                    {
+                        return song;
+                    }
+
+                    return null;
+                });
+
+                songsToSearch.Add(compareLyrics);
             }
 
-            return null;
+            Song[] searchedSongs = await Task.WhenAll(songsToSearch);
+
+            return searchedSongs.FirstOrDefault(song => (song != null));
         }
 
         public async Task<List<Song>> FetchSongs()

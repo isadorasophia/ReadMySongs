@@ -40,7 +40,7 @@ namespace AsyncSongs
         private async Task<string> TryGetLyricsWebRequest()
         {
             // Web request...
-            await Task.Delay(4440);
+            await Task.Delay(10_000);
 
             if (LyricsDatabase.Songs.TryGetValue(Name, out string lyrics))
             {

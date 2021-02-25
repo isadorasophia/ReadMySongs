@@ -12,7 +12,15 @@ namespace AsyncSongs
         {
             {
                 "cute background songs",
-                    new List<string> { "Island Song" }
+                    new List<string> { "Island Song", "Those Were the Days", "What's New Scooby" }
+            },
+            {
+                "Romantic songs",
+                    new List<string> { "Luck Be A Lady" }
+            },
+            {
+                "Spanish songs",
+                    new List<string> { "Julieta" }
             }
         };
     }
