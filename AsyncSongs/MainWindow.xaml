@@ -15,15 +15,30 @@
         <Label Content="My Song Finder" HorizontalAlignment="Center" FontSize="30"></Label>
 
         <StackPanel Orientation="Vertical" Margin="10">
-            <TextBox x:Name="playlistTextBox" Text="Playlist name goes here..." Padding="3" Margin="0,4" GotFocus="playlistTextBox_GotFocus" LostFocus="playlistTextBox_LostFocus"></TextBox>
-            <TextBox x:Name="lyricsTextBox" Text="Lyrics go here..." Padding="3" GotFocus="lyricsTextBox_GotFocus" LostFocus="lyricsTextBox_LostFocus"></TextBox>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="8*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Column="0" Content="Playlist:" Margin="0,3"></Label>
+                <TextBox Grid.Column="1" x:Name="playlistTextBox" FontStyle="Italic" Text="Playlist name goes here..." Padding="3" Margin="0,4" GotFocus="playlistTextBox_GotFocus" LostFocus="playlistTextBox_LostFocus" ></TextBox>
+
+                <Label Grid.Row="1" Grid.Column="0" Content="Lyrics:" Margin="0,3"></Label>
+                <TextBox Grid.Row="1" Grid.Column="1" x:Name="lyricsTextBox" FontStyle="Italic"  Text="Lyrics go here..." Padding="3" GotFocus="lyricsTextBox_GotFocus" Margin="0,4" LostFocus="lyricsTextBox_LostFocus" HorizontalAlignment="Stretch"></TextBox>
+            </Grid>
+
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button x:Name="loginButton" Content="Login" Click="loginButton_Click" HorizontalAlignment="Left" Margin="10,5" Padding="3"></Button>
                 <Button x:Name="searchButton" Content="Search" Click="searchButton_Click" HorizontalAlignment="Right" Padding="3" Margin="0,5"></Button>
             </StackPanel>
         </StackPanel>
 
-        <Label Name="songLabel" Content="Song Name:" Margin="5"></Label>
+        <Label Name="songLabel" Content="Song Name:" Margin="10,0"></Label>
 
         <ProgressBar x:Name="searchProgressBar" IsIndeterminate="True" VerticalAlignment="Center" HorizontalAlignment="Center" Width="130" Margin="0,10,0,0" Height="5"></ProgressBar>
         <Label Name="progressLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Looking up song..." Margin="0,0,0,5"></Label>

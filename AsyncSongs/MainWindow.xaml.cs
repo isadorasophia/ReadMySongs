@@ -55,27 +55,24 @@ namespace AsyncSongs
             {
                 ShowProgressElements();
 
-                var songSearchingTask = this.joinableTaskFactory.RunAsync(async delegate
-                {
-                    Playlist playlist = new Playlist(playlistTextBox.Text);
+                Playlist playlist = new(playlistTextBox.Text);
 
-                    Song song = await playlist.TryFindSongAsync(lyricsTextBox.Text);
+                this.joinableTaskFactory.RunAsync(async delegate
+                {
+                    Song song = await playlist.TryFindSong(lyricsTextBox.Text);
 
                     if (song != null)
                     {
-                        songLabel.Content = $"{songLabelPrefix} {song.Name}."; 
+                        Lyrics lyrics = await song.FetchLyrics();
+
+                        songLabel.Content = $"{songLabelPrefix} {song.Name}.";
                     }
                     else
                     {
                         songLabel.Content = $"{songLabelPrefix} Not found.";
                     }
-                });
 
-
-                songSearchingTask.GetAwaiter().OnCompleted(() =>
-                {
                     HideProgressElements();
-
                     searchButton.IsEnabled = true;
                 });
             }
@@ -88,9 +85,8 @@ namespace AsyncSongs
             this.joinableTaskFactory.RunAsync(async delegate
             {
                 await Task.Delay(3000);
+                loginButton.IsEnabled = true;
             });
-
-            loginButton.IsEnabled = true;
         }
 
         private void playlistTextBox_GotFocus(object sender, RoutedEventArgs e)
