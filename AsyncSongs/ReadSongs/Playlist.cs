@@ -22,57 +22,63 @@ namespace AsyncSongs
             _name = name;
         }
 
+        private object _locker = new();
+
         /// <summary>
         /// Find the first song that contains <paramref name="text"/> in its lyrics.
         /// </summary>
         /// <returns>
         /// The song that its lyrics has <paramref name="text"/>. Otherwise, return null.
         /// </returns>
-        public async Task<Song> TryFindSong(string text)
+        public Task<Song> TryFindSong(string text)
         {
-            List<Task<Song>> songsToSearch = new();
+            Task<List<Song>> fetchSongsTask = Task.Run(FetchSongs);
 
-            foreach (Song song in await FetchSongs())
+            List<Song> candidateSongs = new();
+
+            Task<Task> matchSongsTask = fetchSongsTask.ContinueWith(t =>
             {
-                Task<Song> compareLyrics = Task.Run(async delegate
+                List<Task> matchLyricsTasks = new();
+                foreach (Song song in t.Result)
                 {
-                    Lyrics lyrics = await song.FetchLyrics();
-                    if (lyrics != null && lyrics.HasText(text))
+                    Task<Lyrics> tt = Task.Run(song.FetchLyrics);
+
+                    Task matchLyricsTask = tt.ContinueWith(ttt =>
                     {
-                        return song;
-                    }
+                        Lyrics lyrics = ttt.Result;
+                        if (lyrics != null && lyrics.HasText(text))
+                            lock (_locker) { candidateSongs.Add(lyrics.Song); }
+                    }, TaskScheduler.Default);
 
-                    return null;
-                });
+                    matchLyricsTasks.Add(matchLyricsTask);
+                }
 
-                songsToSearch.Add(compareLyrics);
-            }
+                return Task.WhenAll(matchLyricsTasks);
+            }, TaskScheduler.Default);
 
-            // Run and grab the first valid song!
-            Song[] searchedSongs = await Task.WhenAll(songsToSearch);
-            return searchedSongs.FirstOrDefault(song => song is not null);
+            return matchSongsTask.ContinueWith(_ => candidateSongs.FirstOrDefault(), TaskScheduler.Default);
         }
 
-        public async Task<List<Song>> FetchSongs()
+        public List<Song> FetchSongs()
         {
             if (_cachedSongs == null)
             {
-                _cachedSongs = await DoSongsRequest();
+                _cachedSongs = DoSongsRequest();
                 Task.Run(NotifyUser);
             }
 
             return _cachedSongs;
         }
 
-        private async Task<List<Song>> DoSongsRequest()
+        private List<Song> DoSongsRequest()
         {
             // Best match
             if (_completeName == null)
             {
-                _completeName = await TryGetPlaylistFullNameWebRequest();
+                _completeName = TryGetPlaylistFullNameWebRequest();
             }
 
-            if (await TryGetPlaylistSongsWebRequest() is List<string> songs)
+            if (TryGetPlaylistSongsWebRequest() is List<string> songs)
             {
                 return songs.Select(s => new Song(s)).ToList();
             }
@@ -90,10 +96,10 @@ namespace AsyncSongs
 
         #region Web APIs
 
-        private async Task<string> TryGetPlaylistFullNameWebRequest()
+        private string TryGetPlaylistFullNameWebRequest()
         {
             // Web request...
-            await Task.Delay(10);
+            Thread.Sleep(10);
 
             if (MockPlaylistsDatabase.Playlists.Keys.FirstOrDefault(p => p.Contains(_name, System.StringComparison.OrdinalIgnoreCase)) is string fullName)
             {
@@ -103,7 +109,7 @@ namespace AsyncSongs
             return null;
         }
 
-        private async Task<List<string>> TryGetPlaylistSongsWebRequest()
+        private List<string> TryGetPlaylistSongsWebRequest()
         {
             if (_completeName == null)
             {
@@ -112,7 +118,7 @@ namespace AsyncSongs
             }
 
             // Web request...
-            await Task.Delay(10);
+            Thread.Sleep(10);
 
             if (MockPlaylistsDatabase.Playlists.TryGetValue(_completeName, out List<string> songs))
             {

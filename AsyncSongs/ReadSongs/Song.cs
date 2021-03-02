@@ -1,4 +1,5 @@
 ﻿using AsyncSongs.WebRequests;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AsyncSongs
@@ -17,11 +18,11 @@ namespace AsyncSongs
         /// <summary>
         /// Fetch lyrics for the song. If none was found, return null.
         /// </summary>
-        public async Task<Lyrics> FetchLyrics()
+        public Lyrics FetchLyrics()
         {
             if (_cachedLyrics == null)
             {
-                string lyrics = await DoLyricsRequest();
+                string lyrics = DoLyricsRequest();
                 if (lyrics != null)
                 {
                     _cachedLyrics = new Lyrics(this, lyrics);
@@ -31,17 +32,17 @@ namespace AsyncSongs
             return _cachedLyrics;
         }
 
-        private async Task<string> DoLyricsRequest()
+        private string DoLyricsRequest()
         {
-            return await TryGetLyricsWebRequest();
+            return TryGetLyricsWebRequest();
         }
 
         #region Web APIs
 
-        private async Task<string> TryGetLyricsWebRequest()
+        private string TryGetLyricsWebRequest()
         {
             // Web request...
-            await Task.Delay(10_000);
+            Thread.Sleep(10_000);
 
             if (MockLyricsDatabase.Songs.TryGetValue(Name, out string lyrics))
             {
