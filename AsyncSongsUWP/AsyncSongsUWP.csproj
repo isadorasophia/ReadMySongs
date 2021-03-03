@@ -18,6 +18,7 @@
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -119,6 +120,14 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Genius\Cache.cs" />
+    <Compile Include="Genius\User.cs" />
+    <Compile Include="Genius\Utilities.cs" />
+    <Compile Include="Spotify\Cache.cs" />
+    <Compile Include="Genius\_GeniusRequests.cs" />
+    <Compile Include="Spotify\User.cs" />
+    <Compile Include="Spotify\_SpotifyRequests.cs" />
+    <Compile Include="Spotify\Utilities.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -126,8 +135,6 @@
     <Compile Include="ReadSongs\Lyrics.cs" />
     <Compile Include="ReadSongs\Playlist.cs" />
     <Compile Include="ReadSongs\Song.cs" />
-    <Compile Include="ReadSongs\WebRequests\LyricsDatabase.cs" />
-    <Compile Include="ReadSongs\WebRequests\PlaylistsDatabase.cs" />
     <Compile Include="ReadSongs\_Entrypoint.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -156,8 +163,17 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Genius.NET">
+      <Version>4.0.1</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.12</Version>
+    </PackageReference>
+    <PackageReference Include="SpotifyAPI.Web">
+      <Version>6.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="SpotifyAPI.Web.Auth">
+      <Version>6.0.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup />

@@ -1,4 +1,5 @@
-﻿using AsyncSongsUWP.ReadSongs;
+﻿using AsyncSongs.Spotify;
+using AsyncSongs.ReadSongs;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,7 +18,7 @@ using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
-namespace AsyncSongsUWP
+namespace AsyncSongs
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -58,7 +59,7 @@ namespace AsyncSongsUWP
                 {
                     Song song = await ReadSongsService.SearchSong(text, playlist);
 
-                    Dispatcher.RunAsync(priority: Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    await Dispatcher.RunAsync(priority: Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                     {
                         songLabel.Text = song != null ? $"{SongLabelPrefix} {song.Name}." :
                             $"{SongLabelPrefix} Not found.";
@@ -70,16 +71,10 @@ namespace AsyncSongsUWP
             }
         }
 
-        private void loginButton_Click(object sender, RoutedEventArgs e)
+        private async void loginButton_Click(object sender, RoutedEventArgs e)
         {
             loginButton.IsEnabled = false;
-
-            // Fire and forget...
-            var t = Task.Run(async delegate
-            {
-                await Task.Delay(3000);
-                loginButton.IsEnabled = true;
-            });
+            _ = SpotifyRequests.Login();
         }
 
         private void playlistTextBox_GotFocus(object sender, RoutedEventArgs e)
@@ -112,6 +107,11 @@ namespace AsyncSongsUWP
             {
                 lyricsTextBox.Text = DefaultLyricsTextBoxContent;
             }
+        }
+
+        public void SetUsername(string username)
+        {
+            userLabel.Text = string.Format("Welcome, {0}!", username);
         }
 
         private void HideProgressElements()

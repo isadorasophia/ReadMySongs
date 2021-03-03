@@ -1,13 +1,12 @@
-﻿using AsyncSongsUWP.ReadSongs.WebRequests;
+﻿using AsyncSongs.Spotify;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncSongsUWP.ReadSongs
+namespace AsyncSongs.ReadSongs
 {
-    class Playlist
+    public class Playlist
     {
         /// <summary>
         /// Name which has been passed down by user.
@@ -15,7 +14,7 @@ namespace AsyncSongsUWP.ReadSongs
         private readonly string _name;
 
         private List<Song> _cachedSongs;
-        private string _completeName;
+        private string _id;
 
         public Playlist(string name)
         {
@@ -30,7 +29,7 @@ namespace AsyncSongsUWP.ReadSongs
         /// </returns>
         public async Task<Song> TryFindSong(string text)
         {
-            List<Task<Song>> songsToSearch = new List<Task<Song>>();
+            List<Task<Song>> songsToSearch = new();
 
             foreach (Song song in await FetchSongs())
             {
@@ -67,17 +66,12 @@ namespace AsyncSongsUWP.ReadSongs
         private async Task<List<Song>> DoSongsRequest()
         {
             // Best match
-            if (_completeName == null)
+            if (_id == null)
             {
-                _completeName = await TryGetPlaylistFullNameWebRequest();
+                _id = await SpotifyRequests.Instance.GetPlaylistId(_name);
             }
 
-            if (await TryGetPlaylistSongsWebRequest() is List<string> songs)
-            {
-                return songs.Select(s => new Song(s)).ToList();
-            }
-
-            return null;
+            return await SpotifyRequests.Instance.GetTracks(_id);
         }
 
         private Task NotifyUser()
@@ -87,41 +81,5 @@ namespace AsyncSongsUWP.ReadSongs
                 Thread.Sleep(10);
             });
         }
-
-        #region Web APIs
-
-        private async Task<string> TryGetPlaylistFullNameWebRequest()
-        {
-            // Web request...
-            await Task.Delay(10);
-
-            if (MockPlaylistsDatabase.Playlists.Keys.FirstOrDefault(p => p.Contains(_name, System.StringComparison.OrdinalIgnoreCase)) is string fullName)
-            {
-                return fullName;
-            }
-
-            return null;
-        }
-
-        private async Task<List<string>> TryGetPlaylistSongsWebRequest()
-        {
-            if (_completeName == null)
-            {
-                Debug.Fail("Why we do not have the complete name at this point?");
-                return null;
-            }
-
-            // Web request...
-            await Task.Delay(10);
-
-            if (MockPlaylistsDatabase.Playlists.TryGetValue(_completeName, out List<string> songs))
-            {
-                return songs;
-            }
-
-            return null;
-        }
-
-        #endregion
     }
 }

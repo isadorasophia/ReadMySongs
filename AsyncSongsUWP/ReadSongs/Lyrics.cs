@@ -1,6 +1,6 @@
-﻿namespace AsyncSongsUWP.ReadSongs
+﻿namespace AsyncSongs.ReadSongs
 {
-    class Lyrics
+    public class Lyrics
     {
         public readonly Song Song;
         public string Content { get; private set; }

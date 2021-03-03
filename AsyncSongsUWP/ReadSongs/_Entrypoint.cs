@@ -2,13 +2,13 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AsyncSongsUWP.ReadSongs
+namespace AsyncSongs.ReadSongs
 {
     class ReadSongsService
     {
         public static async Task<Song> SearchSong(string text, string playlistName = null)
         {
-            List<Playlist> playlists = new List<Playlist>();
+            List<Playlist> playlists = new();
             if (playlistName is null)
             {
                 // TODO? Search through all playlists instead.

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AsyncSongs.Spotify;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,7 +16,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-namespace AsyncSongsUWP
+namespace AsyncSongs
 {
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
@@ -95,6 +96,19 @@ namespace AsyncSongsUWP
             var deferral = e.SuspendingOperation.GetDeferral();
             //TODO: Save application state and stop any background activity
             deferral.Complete();
+        }
+
+        protected override async void OnActivated(IActivatedEventArgs args)
+        {
+            if (args.Kind == ActivationKind.Protocol)
+            {
+                ProtocolActivatedEventArgs eventArgs = args as ProtocolActivatedEventArgs;
+                SpotifyRequests.Instance.TrackLoginRedirect(eventArgs.Uri);
+
+                // This looks horrible. I don't know. I just want a quickie thing.
+                var page = (Window.Current.Content as Frame).Content as MainPage;
+                page.SetUsername(await SpotifyRequests.Instance.GetUsername());
+            }
         }
     }
 }

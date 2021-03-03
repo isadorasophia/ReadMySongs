@@ -1,17 +1,19 @@
-﻿using AsyncSongsUWP.ReadSongs.WebRequests;
+﻿using AsyncSongs.Genius;
 using System.Threading.Tasks;
 
-namespace AsyncSongsUWP.ReadSongs
+namespace AsyncSongs.ReadSongs
 {
-    class Song
+    public class Song
     {
         public string Name { get; private set; }
+        public string Artist { get; private set; }
 
         private Lyrics _cachedLyrics = null;
 
-        public Song(string name)
+        public Song(string name, string artist)
         {
             Name = name;
+            Artist = artist;
         }
 
         /// <summary>
@@ -33,24 +35,7 @@ namespace AsyncSongsUWP.ReadSongs
 
         private async Task<string> DoLyricsRequest()
         {
-            return await TryGetLyricsWebRequest();
+            return await GeniusRequests.Instance.FetchLyrics(this);
         }
-
-        #region Web APIs
-
-        private async Task<string> TryGetLyricsWebRequest()
-        {
-            // Web request...
-            await Task.Delay(100_000);
-
-            if (MockLyricsDatabase.Songs.TryGetValue(Name, out string lyrics))
-            {
-                return lyrics;
-            }
-
-            return null;
-        }
-
-        #endregion
     }
 }
