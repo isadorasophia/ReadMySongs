@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Genius.NET" Version="4.0.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading" Version="16.8.55" />
+    <PackageReference Include="SpotifyAPI.Web" Version="6.1.0" />
+    <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.1.0" />
+  </ItemGroup>
+	
+  <PropertyGroup>
+    <!-- Disabling these are not really a good practice but it's what we have for now... -->
+    <NoWarn>VSTHRD200</NoWarn>
+    <NoWarn>VSTHRD001</NoWarn>
+  </PropertyGroup>
+
+</Project>
