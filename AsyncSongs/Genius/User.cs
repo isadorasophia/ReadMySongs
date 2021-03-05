@@ -1,4 +1,5 @@
 using Genius;
+using System.Threading.Tasks;
 
 namespace AsyncSongs.Genius
 {
@@ -7,9 +8,9 @@ namespace AsyncSongs.Genius
         public string Token { get; private set; }
         public GeniusClient Client { get; private set; }
 
-        internal void Register()
+        internal async Task RegisterAsync()
         {
-            Client = new GeniusClient(Utilities.ClientId);
+            Client = new GeniusClient(await Login.GetGeniusClientIdAsync());
         }
     }
 }

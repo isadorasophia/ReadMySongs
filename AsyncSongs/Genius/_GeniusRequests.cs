@@ -15,17 +15,25 @@ namespace AsyncSongs.Genius
 
         public static GeniusRequests Instance = new();
 
+        Task _pendingOperations;
+
         private GeniusRequests()
         {
-            _user.Register();
+            _pendingOperations = Task.Run(_user.RegisterAsync);
         }
 
         public async Task<string> FetchLyricsAsync(Song song)
         {
+            if (_pendingOperations is not null)
+            {
+                await _pendingOperations;
+                _pendingOperations = null;
+            }
+
             ISearchClient search = _user.Client.SearchClient;
             SearchResponse response = await search.Search(song.Name + song.Artist);
 
-            Debug.Fail("why ;_;");
+            Debug.Fail("we never reach this line lalala");
             return "";
         }
     }

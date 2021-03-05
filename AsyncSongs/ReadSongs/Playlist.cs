@@ -76,10 +76,7 @@ namespace AsyncSongs.ReadSongs
 
         private Task NotifyUser()
         {
-            return new Task(() =>
-            {
-                Thread.Sleep(10);
-            });
+            return Task.Delay(10);
         }
     }
 }

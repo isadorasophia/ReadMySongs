@@ -18,7 +18,7 @@ namespace AsyncSongs.Utilities
         public static async Task<string> ReadSecretAsync(string key)
         {
             string content = await ReadFileAsync(SecretsFile);
-            var arguments = content.Split("\n")
+            var arguments = content.Split("\r\n")
                 .Select(param => param.Split("="))
                 .Where(param => param.Length > 1)
                 .ToDictionary(param => param[0], param => param[1]);
