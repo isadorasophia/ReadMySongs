@@ -13,8 +13,8 @@ namespace AsyncSongs.ReadSongs
         /// </summary>
         private readonly string _name;
 
-        private List<Song> _cachedSongs;
-        private string _id;
+        private List<Song>? _cachedSongs;
+        private string? _id;
 
         public Playlist(string name)
         {
@@ -27,16 +27,16 @@ namespace AsyncSongs.ReadSongs
         /// <returns>
         /// The song that its lyrics has <paramref name="text"/>. Otherwise, return null.
         /// </returns>
-        public async Task<Song> TryFindSong(string text)
+        public async Task<Song?> TryFindSongAsync(string text)
         {
-            List<Task<Song>> songsToSearch = new();
+            List<Task<Song?>> songsToSearch = new();
 
-            foreach (Song song in await FetchSongs())
+            foreach (Song song in await FetchSongsAsync())
             {
-                Task<Song> compareLyrics = Task.Run(async delegate
+                Task<Song?> compareLyrics = Task.Run(async delegate
                 {
-                    Lyrics lyrics = await song.FetchLyricsAsync();
-                    if (lyrics != null && lyrics.HasText(text))
+                    Lyrics? lyrics = await song.FetchLyricsAsync();
+                    if (lyrics is not null && lyrics.HasText(text))
                     {
                         return song;
                     }
@@ -48,33 +48,33 @@ namespace AsyncSongs.ReadSongs
             }
 
             // Run and grab the first valid song!
-            Song[] searchedSongs = await Task.WhenAll(songsToSearch);
-            return searchedSongs.FirstOrDefault(song => song != null);
+            Song?[] searchedSongs = await Task.WhenAll(songsToSearch);
+            return searchedSongs.FirstOrDefault(song => song is not null);
         }
 
-        public async Task<List<Song>> FetchSongs()
+        public async Task<List<Song>> FetchSongsAsync()
         {
             if (_cachedSongs == null)
             {
-                _cachedSongs = await DoSongsRequest();
-                await Task.Run(NotifyUser);
+                _cachedSongs = await DoSongsRequestAsync();
+                await Task.Run(NotifyUserAsync);
             }
 
             return _cachedSongs;
         }
 
-        private async Task<List<Song>> DoSongsRequest()
+        private async Task<List<Song>> DoSongsRequestAsync()
         {
             // Best match
-            if (_id == null)
+            if (_id is null)
             {
                 _id = await SpotifyRequests.Instance.GetPlaylistIdAsync(_name);
             }
 
-            return await SpotifyRequests.Instance.GetTracksAsync(_id);
+            return await SpotifyRequests.Instance.GetTracksAsync(_id!);
         }
 
-        private Task NotifyUser()
+        private Task NotifyUserAsync()
         {
             return Task.Delay(10);
         }

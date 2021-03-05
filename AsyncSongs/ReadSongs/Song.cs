@@ -8,7 +8,7 @@ namespace AsyncSongs.ReadSongs
         public string Name { get; private set; }
         public string Artist { get; private set; }
 
-        private Lyrics _cachedLyrics = null;
+        private Lyrics? _cachedLyrics;
 
         public Song(string name, string artist)
         {
@@ -19,12 +19,12 @@ namespace AsyncSongs.ReadSongs
         /// <summary>
         /// Fetch lyrics for the song. If none was found, return null.
         /// </summary>
-        public async Task<Lyrics> FetchLyricsAsync()
+        public async Task<Lyrics?> FetchLyricsAsync()
         {
             if (_cachedLyrics == null)
             {
-                string lyrics = await DoLyricsRequestAsync();
-                if (lyrics != null)
+                string? lyrics = await DoLyricsRequestAsync();
+                if (lyrics is not null)
                 {
                     _cachedLyrics = new Lyrics(this, lyrics);
                 }
@@ -33,7 +33,7 @@ namespace AsyncSongs.ReadSongs
             return _cachedLyrics;
         }
 
-        private async Task<string> DoLyricsRequestAsync()
+        private async Task<string?> DoLyricsRequestAsync()
         {
             return await GeniusRequests.Instance.FetchLyricsAsync(this);
         }

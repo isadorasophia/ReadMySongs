@@ -9,16 +9,16 @@ namespace AsyncSongs.Spotify
     internal class User
     {
         private const string TokenFile = @"spotify-token.txt";
-        private static string TokenPath => Path.Combine(AuthUtils.BasePath, TokenFile);
+        private static string TokenPath => Path.Combine(AuthUtils.BasePath!, TokenFile);
 
-        public SpotifyClient Client { get; private set; }
+        public SpotifyClient? Client { get; private set; }
 
         public bool IsLogged => Client is not null;
 
         /// <summary>
         /// Event for notifying that a user logged in.
         /// </summary>
-        public event Func<Task> UserLoggedIn;
+        public event Func<Task>? UserLoggedIn;
 
         internal async Task InitializeAsync()
         {

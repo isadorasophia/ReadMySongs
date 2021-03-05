@@ -2,6 +2,7 @@ using AsyncSongs.ReadSongs;
 using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -43,7 +44,7 @@ namespace AsyncSongs.Spotify
 
         public async Task<string> GetUsernameAsync()
         {
-            IUserProfileClient profile = _user.Client?.UserProfile;
+            IUserProfileClient? profile = _user.Client?.UserProfile;
             if (profile is null)
             {
                 return "Unknown";
@@ -53,9 +54,15 @@ namespace AsyncSongs.Spotify
             return user.Id;
         }
 
-        public async Task<string> GetPlaylistIdAsync(string name)
+        public async Task<string?> GetPlaylistIdAsync(string name)
         {
-            ISearchClient search = _user.Client?.Search;
+            if (!_user.IsLogged)
+            {
+                Debug.Fail("Please login first.");
+                return null;
+            }
+
+            ISearchClient? search = _user.Client!.Search;
             if (search is null)
             {
                 return null;
@@ -64,13 +71,19 @@ namespace AsyncSongs.Spotify
             SearchRequest request = new(SearchRequest.Types.Playlist, name);
             SearchResponse response = await search.Item(request);
 
-            SimplePlaylist playlist = response.Playlists.Items.FirstOrDefault();
-            return playlist.Id;
+            SimplePlaylist? playlist = response.Playlists.Items?.FirstOrDefault();
+            return playlist?.Id;
         }
 
         internal async Task<List<Song>> GetTracksAsync(string playlistId)
         {
-            FullPlaylist playlist = null;
+            if (!_user.IsLogged)
+            {
+                Debug.Fail("Please login first.");
+                return null;
+            }
+
+            FullPlaylist? playlist = null;
             lock (@lock)
             {
                 _cache.Playlists.TryGetValue(playlistId, out playlist);
@@ -78,7 +91,7 @@ namespace AsyncSongs.Spotify
 
             if (playlist is null)
             {
-                playlist = await _user.Client?.Playlists.Get(playlistId);
+                playlist = await _user.Client!.Playlists.Get(playlistId);
 
                 lock (@lock)
                 {
@@ -87,16 +100,21 @@ namespace AsyncSongs.Spotify
             }
 
             List<Song> songs = new();
+            if (playlist is null || playlist.Tracks is null)
+            {
+                Debug.Fail("Unable to find a suitable playlist?");
+                return songs;
+            }
 
             IEnumerable<FullTrack> tracks = 
-                (await _user.Client?.PaginateAll(playlist.Tracks))
-                    .Select(i => i.Track as FullTrack)
-                    .Where(t => t is not null);
+                (await _user.Client!.PaginateAll(playlist.Tracks))
+                    .Where(t => t is not null && t.Track is FullTrack)
+                    .Select(t => (t.Track as FullTrack)!);
 
             foreach (FullTrack track in tracks)
             {
                 string name = track.Name;
-                string artist = track.Artists.FirstOrDefault()?.Name;
+                string artist = track.Artists.FirstOrDefault()?.Name!;
 
                 songs.Add(new(name, artist));
             }

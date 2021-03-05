@@ -10,27 +10,30 @@ namespace AsyncSongs.Genius
     {
         private User _user = new();
         private Cache _cache = new();
+        private Login _login = new();
 
         private object @lock = new();
 
         public static GeniusRequests Instance = new();
 
-        Task _pendingOperations;
-
-        private GeniusRequests()
+        public Task<bool> LoginAsync()
         {
-            _pendingOperations = Task.Run(_user.RegisterAsync);
-        }
-
-        public async Task<string> FetchLyricsAsync(Song song)
-        {
-            if (_pendingOperations is not null)
+            if (!_user.IsLogged)
             {
-                await _pendingOperations;
-                _pendingOperations = null;
+                return _login.TryLoginAsync();
             }
 
-            ISearchClient search = _user.Client.SearchClient;
+            return Task.FromResult(true);
+        }
+
+        public async Task<string?> FetchLyricsAsync(Song song)
+        {
+            if (!_user.IsLogged)
+            {
+                return null;
+            }
+
+            ISearchClient search = _user.Client!.SearchClient;
             SearchResponse response = await search.Search(song.Name + song.Artist);
 
             Debug.Fail("we never reach this line lalala");

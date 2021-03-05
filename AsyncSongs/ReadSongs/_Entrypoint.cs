@@ -6,7 +6,7 @@ namespace AsyncSongs.ReadSongs
 {
     class ReadSongsService
     {
-        public static async Task<Song> SearchSong(string text, string playlistName = null)
+        public static async Task<Song?> SearchSongAsync(string text, string? playlistName = null)
         {
             List<Playlist> playlists = new();
             if (playlistName is null)
@@ -19,13 +19,13 @@ namespace AsyncSongs.ReadSongs
                 playlists.Add(new Playlist(playlistName));
             }
 
-            List<Task<Song>> tasks = new();
+            List<Task<Song?>> tasks = new();
             foreach (Playlist playlist in playlists)
             {
-                tasks.Add(playlist.TryFindSong(text));
+                tasks.Add(playlist.TryFindSongAsync(text));
             }
 
-            Song[] songs = await Task.WhenAll(tasks);
+            Song?[] songs = await Task.WhenAll(tasks);
             return songs.FirstOrDefault(s => s != null);
         }
     }

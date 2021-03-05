@@ -1,4 +1,5 @@
 ﻿using AsyncSongs.Spotify;
+using AsyncSongs.Genius;
 using AsyncSongs.ReadSongs;
 
 using System.Diagnostics;
@@ -55,7 +56,7 @@ namespace AsyncSongs
 
                 var songSearchingTask = Task.Run(async delegate
                 {
-                    Song song = await ReadSongsService.SearchSong(text, playlist);
+                    Song? song = await ReadSongsService.SearchSongAsync(text, playlist);
 
                     await Dispatcher.BeginInvoke(delegate
                     {
@@ -76,7 +77,8 @@ namespace AsyncSongs
 
             try
             {
-                requestSent = await Task.Run(SpotifyRequests.Instance.LoginAsync);
+                requestSent = await Task.Run(SpotifyRequests.Instance.LoginAsync) && 
+                    await Task.Run(GeniusRequests.Instance.LoginAsync);
             }
             catch
             {

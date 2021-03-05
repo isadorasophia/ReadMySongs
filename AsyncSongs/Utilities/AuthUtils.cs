@@ -13,7 +13,7 @@ namespace AsyncSongs.Utilities
         /// <summary>
         /// Retrieve the root directory.
         /// </summary>
-        public readonly static string BasePath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName;
+        public readonly static string? BasePath = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.Parent?.Parent?.FullName;
 
         public static async Task<string> ReadSecretAsync(string key)
         {
@@ -28,7 +28,7 @@ namespace AsyncSongs.Utilities
 
         public static async Task<string> ReadFileAsync(string file)
         {
-            string path = Path.Combine(BasePath, file);
+            string path = Path.Combine(BasePath!, file);
 
             if (!File.Exists(path))
             {

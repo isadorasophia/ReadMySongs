@@ -1,15 +1,13 @@
 using AsyncSongs.Utilities;
-using SpotifyAPI.Web;
-using SpotifyAPI.Web.Auth;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace AsyncSongs.Spotify
+namespace AsyncSongs.Genius
 {
     internal class Login
     {
-        private readonly static string RedirectUrl = "http://localhost:5000/spotify-callback/";
+        public readonly static string RedirectUrl = "http://localhost:5000/genius-callback/";
 
         private static EmbedIOAuthServer? _server;
         private string? _clientId;
@@ -32,27 +30,22 @@ namespace AsyncSongs.Spotify
             return true;
         }
 
-        internal static Task<string> GetSpotifyClientIdAsync() => AuthUtils.ReadSecretAsync("spotify:clientId");
-
         private Uri GetLoginUri()
         {
             var loginRequest = new LoginRequest(
                 _server!.BaseUri,
-                _clientId!,
-                LoginRequest.ResponseType.Token)
-            {
-                Scope = new[] { Scopes.PlaylistReadPrivate }
-            };
+                _clientId!);
 
             return loginRequest.ToUri();
         }
 
-        private async Task OnImplictGrantReceivedAsync(object _, ImplictGrantResponse response)
+        private async Task OnAuthorizationCodeReceivedAsync(object _, AuthorizationCodeResponse response)
         {
             // Stop listening to server.
-            await _server!.Stop();
+            await _server!.StopAsync();
 
-            await SpotifyRequests.Instance.SetLoginTokenAsync(response.AccessToken).ConfigureAwait(false);
+            // TODO: Implement post operation requesting the access token with response.Code.
+            // await GeniusRequests.Instance.SetLoginTokenAsync(response.AccessToken).ConfigureAwait(false);
 
             Cleanup();
         }
@@ -63,10 +56,10 @@ namespace AsyncSongs.Spotify
         private async Task InitializeAsync()
         {
             _server = new(new Uri(RedirectUrl), 5000);
-            await _server.Start();
+            await _server.StartAsync();
 
-            _server.ImplictGrantReceived += OnImplictGrantReceivedAsync;
-            _clientId = await GetSpotifyClientIdAsync();
+            _server.AuthorizationCodeReceived += OnAuthorizationCodeReceivedAsync;
+            _clientId = await GetGeniusClientIdAsync();
         }
 
         private void Cleanup()
@@ -74,5 +67,7 @@ namespace AsyncSongs.Spotify
             _server = null;
             _clientId = null;
         }
+
+        internal static Task<string> GetGeniusClientIdAsync() => AuthUtils.ReadSecretAsync("genius:clientId");
     }
 }
