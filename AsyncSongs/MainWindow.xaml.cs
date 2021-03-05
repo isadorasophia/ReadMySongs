@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using AsyncSongs.Spotify;
+using AsyncSongs.ReadSongs;
+
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace AsyncSongs
 {
@@ -20,6 +23,15 @@ namespace AsyncSongs
             InitializeComponent();
             
             HideProgressElements();
+
+            InitializeSpotify();
+        }
+
+        private void InitializeSpotify()
+        {
+            // Listen to any logins at the spotify wrapper.
+            SpotifyRequests.Instance.OnLogin(SetUserAsync);
+            _ = Task.Run(SpotifyRequests.Instance.InitializeAsync);
         }
 
         private void searchButton_Click(object sender, RoutedEventArgs e)
@@ -45,28 +57,33 @@ namespace AsyncSongs
                 {
                     Song song = await ReadSongsService.SearchSong(text, playlist);
 
-                    Dispatcher.Invoke(() =>
+                    await Dispatcher.BeginInvoke(delegate
                     {
                         songLabel.Content = song != null ? $"{SongLabelPrefix} {song.Name}." :
                             $"{SongLabelPrefix} Not found.";
 
                         HideProgressElements();
                         searchButton.IsEnabled = true;
-                    });
+                    }, DispatcherPriority.Render);
                 }).ConfigureAwait(false);
             }
         }
 
-        private void loginButton_Click(object sender, RoutedEventArgs e)
+        private async void loginButton_Click(object sender, RoutedEventArgs e)
         {
+            bool requestSent = false;
             loginButton.IsEnabled = false;
 
-            // Fire and forget...
-            var t = Task.Run(async delegate
+            try
             {
-                await Task.Delay(3000);
-                loginButton.IsEnabled = true;
-            });
+                requestSent = await Task.Run(SpotifyRequests.Instance.LoginAsync);
+            }
+            catch
+            {
+                Debug.Fail("Login failed.");
+            }
+
+            loginButton.IsEnabled = !requestSent;
         }
 
         private void playlistTextBox_GotFocus(object sender, RoutedEventArgs e)
@@ -111,6 +128,22 @@ namespace AsyncSongs
         {
             progressLabel.Visibility = Visibility.Visible;
             searchProgressBar.Visibility = Visibility.Visible;
+        }
+
+        /// <summary>
+        /// Helper callback for setting a new user after a successful login.
+        /// </summary>
+        public async Task SetUserAsync()
+        {
+            string username = await SpotifyRequests.Instance.GetUsernameAsync().ConfigureAwait(false);
+
+            Dispatcher.Invoke(delegate
+            {
+                userLabel.Content = string.Format("Welcome, {0}!", username);
+
+                loginButton.IsEnabled = false;
+                loginButton.Content = "Logged in";
+            }, DispatcherPriority.Render);
         }
     }
 }

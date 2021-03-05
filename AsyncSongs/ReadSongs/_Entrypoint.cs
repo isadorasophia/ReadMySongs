@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AsyncSongs
+namespace AsyncSongs.ReadSongs
 {
     class ReadSongsService
     {
@@ -16,7 +16,7 @@ namespace AsyncSongs
             }
             else
             {
-                playlists.Add(new(playlistName));
+                playlists.Add(new Playlist(playlistName));
             }
 
             List<Task<Song>> tasks = new();
@@ -26,7 +26,7 @@ namespace AsyncSongs
             }
 
             Song[] songs = await Task.WhenAll(tasks);
-            return songs.FirstOrDefault(s => s is not null);
+            return songs.FirstOrDefault(s => s != null);
         }
     }
 }

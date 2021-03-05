@@ -1,13 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using AsyncSongs.Spotify;
+using System.Collections.Generic;
 using System.Linq;
-using System.Diagnostics;
 using System.Threading;
-using AsyncSongs.WebRequests;
+using System.Threading.Tasks;
 
-namespace AsyncSongs
+namespace AsyncSongs.ReadSongs
 {
-    class Playlist
+    public class Playlist
     {
         /// <summary>
         /// Name which has been passed down by user.
@@ -15,7 +14,7 @@ namespace AsyncSongs
         private readonly string _name;
 
         private List<Song> _cachedSongs;
-        private string _completeName;
+        private string _id;
 
         public Playlist(string name)
         {
@@ -50,7 +49,7 @@ namespace AsyncSongs
 
             // Run and grab the first valid song!
             Song[] searchedSongs = await Task.WhenAll(songsToSearch);
-            return searchedSongs.FirstOrDefault(song => song is not null);
+            return searchedSongs.FirstOrDefault(song => song != null);
         }
 
         public async Task<List<Song>> FetchSongs()
@@ -58,7 +57,7 @@ namespace AsyncSongs
             if (_cachedSongs == null)
             {
                 _cachedSongs = await DoSongsRequest();
-                Task.Run(NotifyUser);
+                await Task.Run(NotifyUser);
             }
 
             return _cachedSongs;
@@ -67,17 +66,12 @@ namespace AsyncSongs
         private async Task<List<Song>> DoSongsRequest()
         {
             // Best match
-            if (_completeName == null)
+            if (_id == null)
             {
-                _completeName = await TryGetPlaylistFullNameWebRequest();
+                _id = await SpotifyRequests.Instance.GetPlaylistIdAsync(_name);
             }
 
-            if (await TryGetPlaylistSongsWebRequest() is List<string> songs)
-            {
-                return songs.Select(s => new Song(s)).ToList();
-            }
-
-            return null;
+            return await SpotifyRequests.Instance.GetTracksAsync(_id);
         }
 
         private Task NotifyUser()
@@ -87,41 +81,5 @@ namespace AsyncSongs
                 Thread.Sleep(10);
             });
         }
-
-        #region Web APIs
-
-        private async Task<string> TryGetPlaylistFullNameWebRequest()
-        {
-            // Web request...
-            await Task.Delay(10);
-
-            if (MockPlaylistsDatabase.Playlists.Keys.FirstOrDefault(p => p.Contains(_name, System.StringComparison.OrdinalIgnoreCase)) is string fullName)
-            {
-                return fullName;
-            }
-
-            return null;
-        }
-
-        private async Task<List<string>> TryGetPlaylistSongsWebRequest()
-        {
-            if (_completeName == null)
-            {
-                Debug.Fail("Why we do not have the complete name at this point?");
-                return null;
-            }
-
-            // Web request...
-            await Task.Delay(10);
-
-            if (MockPlaylistsDatabase.Playlists.TryGetValue(_completeName, out List<string> songs))
-            {
-                return songs;
-            }
-
-            return null;
-        }
-
-        #endregion
     }
 }
