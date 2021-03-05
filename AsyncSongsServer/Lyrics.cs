@@ -1,6 +1,6 @@
-﻿namespace AsyncSongs
+﻿namespace AsyncSongsServer
 {
-    class Lyrics
+    public class Lyrics
     {
         public readonly Song Song;
         public string Content { get; private set; }

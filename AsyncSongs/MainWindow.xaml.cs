@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,6 +15,9 @@ namespace AsyncSongs
         private const string DefaultPlaylistTextBoxContent = "Playlist name goes here...";
         private const string DefaultLyricsTextBoxContent = "Lyrics go here...";
         private const string SongLabelPrefix = "Song Name:";
+
+        private const string ServerURL = @"https://localhost:44353/ReadSongs";
+        private readonly HttpClient httpClient = new HttpClient();
 
         public MainWindow()
         {
@@ -41,19 +45,19 @@ namespace AsyncSongs
                 var text = lyricsTextBox.Text;
                 var playlist = playlistTextBox.Text;
 
-                var songSearchingTask = Task.Run(async delegate
-                {
-                    Song song = await ReadSongsService.SearchSong(text, playlist);
+                //var songSearchingTask = Task.Run(async delegate
+                //{
+                //    Song song = await ReadSongsService.SearchSong(text, playlist);
 
-                    Dispatcher.Invoke(() =>
-                    {
-                        songLabel.Content = song != null ? $"{SongLabelPrefix} {song.Name}." :
-                            $"{SongLabelPrefix} Not found.";
+                //    Dispatcher.Invoke(() =>
+                //    {
+                //        songLabel.Content = song != null ? $"{SongLabelPrefix} {song.Name}." :
+                //            $"{SongLabelPrefix} Not found.";
 
-                        HideProgressElements();
-                        searchButton.IsEnabled = true;
-                    });
-                }).ConfigureAwait(false);
+                //        HideProgressElements();
+                //        searchButton.IsEnabled = true;
+                //    });
+                //}).ConfigureAwait(false);
             }
         }
 
@@ -64,7 +68,7 @@ namespace AsyncSongs
             // Fire and forget...
             var t = Task.Run(async delegate
             {
-                await Task.Delay(3000);
+                var result = await httpClient.GetAsync($"{ServerURL}/Login");
                 loginButton.IsEnabled = true;
             });
         }
