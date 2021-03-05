@@ -4,7 +4,7 @@ using System.Linq;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace AsyncSongs
+namespace AsyncSongs.Utilities
 {
     public static class AuthUtils
     {
