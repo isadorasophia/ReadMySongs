@@ -19,11 +19,11 @@ namespace AsyncSongs.ReadSongs
         /// <summary>
         /// Fetch lyrics for the song. If none was found, return null.
         /// </summary>
-        public async Task<Lyrics> FetchLyrics()
+        public async Task<Lyrics> FetchLyricsAsync()
         {
             if (_cachedLyrics == null)
             {
-                string lyrics = await DoLyricsRequest();
+                string lyrics = await DoLyricsRequestAsync();
                 if (lyrics != null)
                 {
                     _cachedLyrics = new Lyrics(this, lyrics);
@@ -33,9 +33,9 @@ namespace AsyncSongs.ReadSongs
             return _cachedLyrics;
         }
 
-        private async Task<string> DoLyricsRequest()
+        private async Task<string> DoLyricsRequestAsync()
         {
-            return await GeniusRequests.Instance.FetchLyrics(this);
+            return await GeniusRequests.Instance.FetchLyricsAsync(this);
         }
     }
 }

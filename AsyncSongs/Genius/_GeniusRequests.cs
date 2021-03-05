@@ -20,12 +20,12 @@ namespace AsyncSongs.Genius
             _user.Register();
         }
 
-        public async Task<string> FetchLyrics(Song song)
+        public async Task<string> FetchLyricsAsync(Song song)
         {
             ISearchClient search = _user.Client.SearchClient;
             SearchResponse response = await search.Search(song.Name + song.Artist);
 
-            Debug.Fail("satahp");
+            Debug.Fail("why ;_;");
             return "";
         }
     }

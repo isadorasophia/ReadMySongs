@@ -35,7 +35,7 @@ namespace AsyncSongs.ReadSongs
             {
                 Task<Song> compareLyrics = Task.Run(async delegate
                 {
-                    Lyrics lyrics = await song.FetchLyrics();
+                    Lyrics lyrics = await song.FetchLyricsAsync();
                     if (lyrics != null && lyrics.HasText(text))
                     {
                         return song;
