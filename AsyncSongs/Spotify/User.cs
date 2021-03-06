@@ -47,5 +47,12 @@ namespace AsyncSongs.Spotify
                 _ = UserLoggedIn();
             }
         }
+
+        internal void Logout()
+        {
+            Client = null;
+
+            File.Delete(TokenPath);
+        }
     }
 }

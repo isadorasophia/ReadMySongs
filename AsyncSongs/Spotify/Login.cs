@@ -52,7 +52,7 @@ namespace AsyncSongs.Spotify
             // Stop listening to server.
             await _server!.Stop();
 
-            await SpotifyRequests.Instance.SetLoginTokenAsync(response.AccessToken).ConfigureAwait(false);
+            await SpotifyRequests.Instance.SetLoginTokenAsync(response.AccessToken);
 
             Cleanup();
         }

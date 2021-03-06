@@ -42,7 +42,11 @@ namespace AsyncSongs.Spotify
             return true;
         }
 
-        public async Task<string> GetUsernameAsync()
+        /// <summary>
+        /// Get the username.
+        /// </summary>
+        /// <returns>Username. Returns null if user has an invalid credential.</returns>
+        public async Task<string?> GetUsernameAsync()
         {
             IUserProfileClient? profile = _user.Client?.UserProfile;
             if (profile is null)
@@ -50,8 +54,17 @@ namespace AsyncSongs.Spotify
                 return "Unknown";
             }
 
-            PrivateUser user = await profile.Current();
-            return user.Id;
+            try
+            {
+                PrivateUser user = await profile.Current();
+                return user.Id;
+            }
+            catch (APIUnauthorizedException)
+            {
+                // TODO: Capture this elsewhere? For now, this is good enough.
+                _user.Logout();
+                return null;
+            }
         }
 
         public async Task<string?> GetPlaylistIdAsync(string name)

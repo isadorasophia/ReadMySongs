@@ -25,14 +25,16 @@ namespace AsyncSongs
             
             HideProgressElements();
 
-            InitializeSpotify();
+            InitializeApis();
         }
 
-        private void InitializeSpotify()
+        private void InitializeApis()
         {
             // Listen to any logins at the spotify wrapper.
             SpotifyRequests.Instance.OnLogin(SetUserAsync);
+
             _ = Task.Run(SpotifyRequests.Instance.InitializeAsync);
+            _ = Task.Run(GeniusRequests.Instance.InitializeAsync);
         }
 
         private void searchButton_Click(object sender, RoutedEventArgs e)
@@ -137,14 +139,21 @@ namespace AsyncSongs
         /// </summary>
         public async Task SetUserAsync()
         {
-            string username = await SpotifyRequests.Instance.GetUsernameAsync().ConfigureAwait(false);
+            string? username = await SpotifyRequests.Instance.GetUsernameAsync().ConfigureAwait(false);
 
             Dispatcher.Invoke(delegate
             {
-                userLabel.Content = string.Format("Welcome, {0}!", username);
+                if (username is not null)
+                {
+                    userLabel.Content = string.Format("Welcome, {0}!", username);
 
-                loginButton.IsEnabled = false;
-                loginButton.Content = "Logged in";
+                    loginButton.IsEnabled = false;
+                    loginButton.Content = "Logged in";
+                }
+                else
+                {
+                    loginButton.IsEnabled = true;
+                }
             }, DispatcherPriority.Render);
         }
     }

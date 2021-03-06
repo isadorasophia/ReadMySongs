@@ -366,3 +366,4 @@ FodyWeavers.xsd
 # secret tokens...
 secrets.txt
 spotify-token.txt
+genius-token.txt
