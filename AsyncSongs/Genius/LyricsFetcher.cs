@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -15,7 +16,8 @@ namespace AsyncSongs.Genius
     internal static class LyricsFetcher
     {
         private const string GeniusSongUrl = "https://genius.com{0}";
-        private const string LyricsHtmlPath = "//div[@class='song_body column_layout']/div[@class='column_layout-column_span column_layout-column_span--primary']/div[@class='song_body-lyrics']/div[@initial-content-for='lyrics']/div[@class='lyrics']";
+        private const string LyricsHtmlPathA = "//div[@class='song_body column_layout']/div[@class='column_layout-column_span column_layout-column_span--primary']/div[@class='song_body-lyrics']/div[@initial-content-for='lyrics']/div[@class='lyrics']";
+        private const string LyricsHtmlPathB = "//div[@class='Lyrics__Container-sc-1ynbvzw-2 jgQsqn']";
 
         /// <summary>
         /// In order to fetch the lyrics, we need to request for the html and manually fetch its contents. 
@@ -32,16 +34,30 @@ namespace AsyncSongs.Genius
             document.LoadHtml(htmlContent);
             
             // Look for our lyrics path and hope for the best...
-            var nodeCollection = document.DocumentNode.SelectNodes(LyricsHtmlPath);
-            string? lyricsHtmlContent = nodeCollection?.FirstOrDefault()?.InnerHtml;
-            if (lyricsHtmlContent is null)
+            var nodeCollection = document.DocumentNode.SelectNodes(LyricsHtmlPathA);
+            var lyricsHtmlContent = nodeCollection?.FirstOrDefault()?.InnerHtml;
+            if (lyricsHtmlContent is not null)
             {
-                // Unable to find element, did it change? :(
-                // TODO: Find out different paths to the lyrics.
+                // Found our lyrics! Return immediately!
+                return FormatHtml(lyricsHtmlContent);
+            }
+
+            // Test our alternative div class.
+            nodeCollection = document.DocumentNode.SelectNodes(LyricsHtmlPathB);
+            if (nodeCollection is null || !nodeCollection.Any())
+            {
+                // Unable to find it? :(
                 return null;
             }
 
-            return FormatHtml(lyricsHtmlContent);
+            // For this alternate path, return all matches.
+            StringBuilder builder = new();
+            foreach (var node in nodeCollection)
+            {
+                builder.Append(FormatHtml(node.InnerHtml));
+            }
+
+            return builder.ToString();
         }
 
         // See https://stackoverflow.com/questions/286813/how-do-you-convert-html-to-plain-text

@@ -10,6 +10,8 @@ namespace AsyncSongs.ReadSongs
 
         private Lyrics? _cachedLyrics;
 
+        public Lyrics Lyrics => _cachedLyrics!;
+
         public Song(string name, string artist)
         {
             Name = name;

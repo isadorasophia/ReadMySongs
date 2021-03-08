@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using System.Windows.Documents;
 
 namespace AsyncSongs
 {
@@ -51,6 +52,8 @@ namespace AsyncSongs
             }
             else
             {
+                _lyricsLabel.Text = "";
+                _lyricsLabel.Visibility = Visibility.Hidden;
                 ShowProgressElements();
 
                 var text = lyricsTextBox.Text;
@@ -62,11 +65,25 @@ namespace AsyncSongs
 
                     await Dispatcher.BeginInvoke(delegate
                     {
-                        songLabel.Content = song != null ? $"{SongLabelPrefix} {song.Name}." :
-                            $"{SongLabelPrefix} Not found.";
-
                         HideProgressElements();
                         searchButton.IsEnabled = true;
+
+                        if (song is not null)
+                        {
+                            songLabel.Content = $"{SongLabelPrefix} {song.Name}.";
+
+                            var lines = song.Lyrics.GetExerpt(text);
+                            foreach (var line in lines)
+                            {
+                                _lyricsLabel.Inlines.Add(new Run(line) { FontStyle = FontStyles.Italic });
+                            }
+
+                            _lyricsLabel.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            songLabel.Content = $"{SongLabelPrefix} Not found.";
+                        }
                     }, DispatcherPriority.Render);
                 }).ConfigureAwait(false);
             }

@@ -93,7 +93,7 @@ namespace AsyncSongs.Spotify
             if (!_user.IsLogged)
             {
                 Debug.Fail("Please login first.");
-                return null;
+                return new();
             }
 
             FullPlaylist? playlist = null;

@@ -1,8 +1,8 @@
 using AsyncSongs.ReadSongs;
 using Genius.Clients.Interfaces;
-using Genius.Models;
 using Genius.Models.Response;
-using System.Diagnostics;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,8 +15,6 @@ namespace AsyncSongs.Genius
         private User _user = new();
         private Cache _cache = new();
         private Login _login = new();
-
-        private object @lock = new();
 
         public static GeniusRequests Instance = new();
 
@@ -57,11 +55,17 @@ namespace AsyncSongs.Genius
             ISearchClient search = _user.Client!.SearchClient;
             SearchResponse response = await search.Search(song.Name + song.Artist);
 
-            SearchHit? hit = response.Response.Hits
-                .Where(h => h != null && h.Type is "song")?
-                .FirstOrDefault();
+            IEnumerable<GeniusSong> songs = response.Response.Hits
+                .Where(h => h != null && h.Type is "song")
+                .Select(h => h.Result);
 
-            return hit?.Result;
+            // Return immediately if nothing was found...
+            if (songs == null || !songs.Any()) return null;
+
+            // Try our best guess based on whether we find a matching artist on our results.
+            var bestMatch = songs.FirstOrDefault(s => s.PrimaryArtist.Name.Contains(song.Artist, StringComparison.OrdinalIgnoreCase));
+
+            return bestMatch ?? songs.First();
         }
 
         internal Task SetLoginTokenAsync(string token) => _user.RegisterTokenAsync(token, save: true);
