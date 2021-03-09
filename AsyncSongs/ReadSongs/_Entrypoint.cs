@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace AsyncSongs.ReadSongs
@@ -27,24 +26,7 @@ namespace AsyncSongs.ReadSongs
             }
 
             Song?[] songs = await Task.WhenAll(tasks);
-
-            //For purposes of the demo, after the initial search, we send a custom request under the covers to
-            //tell the server that it should hang when the next request occurs.
-            await MakeServerHangOnNextSearchAsync();
-
             return songs.FirstOrDefault(s => s != null);
-        }
-
-        private static async Task MakeServerHangOnNextSearchAsync()
-        {
-            // We need to repeat a request to the server so force the application to make a new request.
-            Utilities.CacheUtils.IsCacheInvalid = true;
-
-            string uri = $"https://localhost:44305/api/lyrics/MakeServerHang";
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
-
-            // This call does not return anything.
-            await request.GetResponseAsync();
         }
     }
 }

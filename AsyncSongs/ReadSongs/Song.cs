@@ -23,7 +23,7 @@ namespace AsyncSongs.ReadSongs
         /// </summary>
         public async Task<Lyrics?> FetchLyricsAsync()
         {
-            if (Utilities.CacheUtils.IsCacheInvalid || _cachedLyrics == null)
+            if (_cachedLyrics == null)
             {
                 string? lyrics = await DoLyricsRequestAsync();
                 if (lyrics is not null)

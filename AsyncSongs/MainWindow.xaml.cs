@@ -27,8 +27,6 @@ namespace AsyncSongs
             HideProgressElements();
 
             InitializeApis();
-
-            Utilities.CacheUtils.IsCacheInvalid = false;
         }
 
         private void InitializeApis()
