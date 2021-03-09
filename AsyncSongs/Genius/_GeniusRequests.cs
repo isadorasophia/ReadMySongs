@@ -53,7 +53,21 @@ namespace AsyncSongs.Genius
         private async Task<GeniusSong?> TryFindSongAsync(Song song)
         {
             ISearchClient search = _user.Client!.SearchClient;
-            SearchResponse response = await search.Search(song.Name + song.Artist);
+
+            SearchResponse response;
+            while (true)
+            {
+                try
+                {
+                    response = await search.Search(song.Name + song.Artist);
+                    break;
+                }
+                catch
+                {
+                    // We don't what to block the UI, so we let other tasks continue their work.
+                    await Task.Yield();
+                }
+            }
 
             IEnumerable<GeniusSong> songs = response.Response.Hits
                 .Where(h => h != null && h.Type is "song")
