@@ -18,12 +18,19 @@ namespace WebApplication1.Controllers
         private const string LyricsHtmlPathA = "//div[@class='song_body column_layout']/div[@class='column_layout-column_span column_layout-column_span--primary']/div[@class='song_body-lyrics']/div[@initial-content-for='lyrics']/div[@class='lyrics']";
         private const string LyricsHtmlPathB = "//div[@class='Lyrics__Container-sc-1ynbvzw-2 jgQsqn']";
 
+        // For purposes of the demo, when the client makes a request to MakeServerHang, the server will take a long time to
+        // return the requested lyrics.
+        private static bool shouldHang = false;
+
         [HttpGet]
         // Example: https://localhost:44305/api/lyrics?songId=Matvey-blanter-katyusha-lyrics
         public string Get(string songId)
         {
-            // TODO: Add a sleep here?
-            Thread.Sleep(10_000);
+            if (shouldHang)
+            {
+                // Block for one minute.
+                Thread.Sleep(60_000);
+            }
 
             using (WebClient wb = new WebClient())
             {
@@ -61,6 +68,14 @@ namespace WebApplication1.Controllers
 
                 return builder.ToString();
             }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        // Example: https://localhost:44305/api/lyrics/MakeServerHang
+        public void MakeServerHang()
+        {
+            shouldHang = true;
         }
 
         private static string FormatHtml(string html)
