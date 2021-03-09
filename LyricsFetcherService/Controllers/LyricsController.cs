@@ -13,7 +13,8 @@ namespace WebApplication1.Controllers
     [ApiController]
     public class LyricsController : ControllerBase
     {
-        private const string GeniusSongUrl = "https://genius.com/{0}";
+        // Note: song path already contains a forward slash prefix, so do not add it on GeniusSongUrl
+        private const string GeniusSongUrl = "https://genius.com{0}";
         private const string LyricsHtmlPathA = "//div[@class='song_body column_layout']/div[@class='column_layout-column_span column_layout-column_span--primary']/div[@class='song_body-lyrics']/div[@initial-content-for='lyrics']/div[@class='lyrics']";
         private const string LyricsHtmlPathB = "//div[@class='Lyrics__Container-sc-1ynbvzw-2 jgQsqn']";
 
@@ -22,7 +23,7 @@ namespace WebApplication1.Controllers
         public string Get(string songId)
         {
             // TODO: Add a sleep here?
-            Thread.Sleep(10000);
+            Thread.Sleep(10_000);
 
             using (WebClient wb = new WebClient())
             {
