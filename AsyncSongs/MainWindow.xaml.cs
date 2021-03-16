@@ -1,7 +1,7 @@
 ﻿using AsyncSongs.Spotify;
 using AsyncSongs.Genius;
 using AsyncSongs.ReadSongs;
-
+using MahApps.Metro.Controls;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,7 +14,7 @@ namespace AsyncSongs
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
         private const string DefaultPlaylistTextBoxContent = "Playlist name goes here...";
         private const string DefaultLyricsTextBoxContent = "Lyrics go here...";
