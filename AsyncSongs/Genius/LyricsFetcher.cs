@@ -22,7 +22,7 @@ namespace AsyncSongs.Genius
         internal static async Task<string?> FetchLyricsAsync(this GeniusSong song)
         {
             // TODO: This might have an extra /, remove it if so.
-            string uri = $"https://localhost:44305/api/lyrics?songId={song.Path}";
+            string uri = $"https://localhost:44305/api/lyrics?songPath={song.Path}";
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
 
             using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())

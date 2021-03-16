@@ -57,7 +57,7 @@ namespace AsyncSongs.Spotify
             try
             {
                 PrivateUser user = await profile.Current();
-                return user.Id;
+                return user.DisplayName;
             }
             catch (APIUnauthorizedException)
             {
