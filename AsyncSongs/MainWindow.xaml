@@ -1,58 +1,88 @@
-﻿<Window x:Class="AsyncSongs.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d"
-        Title="My Song Finder" Height="450" Width="500">
-
-    <Window.Resources>
-        <Style TargetType="Label" x:Key="Title">
-            <Setter Property="FontSize" Value="30"/>
-            <Setter Property="FontWeight" Value="DemiBold"/>
-        </Style>
-    </Window.Resources>
+﻿<mah:MetroWindow x:Class="AsyncSongs.MainWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 Title="My Songs Finder"
+                 Height="450"
+                 Width="500"
+                 WindowStartupLocation="CenterScreen"
+                 mc:Ignorable="d">
     
-    <StackPanel Orientation="Vertical">
+    <mah:MetroWindow.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive! -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <!-- Theme setting -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <Style TargetType="Label">
+                <Setter Property="FontFamily" Value="Constantia"/>
+                <Setter Property="FontSize" Value="17"/>
+            </Style>
+            <Style TargetType="Button">
+                <Setter Property="FontFamily" Value="Constantia"/>
+                <Setter Property="FontSize" Value="17"/>
+            </Style>
+            <Style TargetType="TextBox">
+                <Setter Property="FontFamily" Value="Constantia"/>
+                <Setter Property="FontSize" Value="17"/>
+            </Style>
+            <Style TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="Constantia"/>
+                <Setter Property="FontSize" Value="17"/>
+            </Style>
+        </ResourceDictionary>
+    </mah:MetroWindow.Resources>
+    
+    <Grid>
+        <StackPanel Orientation="Vertical">
 
-        <Label Name="userLabel" HorizontalAlignment="Right" Margin="10,2">
-            Not logged in
-        </Label>
-        
-        <Label Content="My Song Finder" HorizontalAlignment="Center" Style="{StaticResource Title}"></Label>
+            <Label Name="userLabel" HorizontalAlignment="Right" Margin="10,2">
+                Not logged in
+            </Label>
 
-        <StackPanel Orientation="Vertical" Margin="10">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
+            <mah:MetroHeader HorizontalAlignment="Center" FontSize="30" FontFamily="Constantia">
+                My Songs Finder
+            </mah:MetroHeader>
 
-                <Label Grid.Row="0" Content="Playlist Name:"></Label>
-                <TextBox Grid.Row="1" x:Name="playlistTextBox" FontStyle="Italic" Text="LockdownHits" Padding="3" Margin="4,4" GotFocus="playlistTextBox_GotFocus" LostFocus="playlistTextBox_LostFocus" ></TextBox>
+            <StackPanel Orientation="Vertical" Margin="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
 
-                <Label Grid.Row="2" Content="Lyrics contain word(s):"></Label>
-                <TextBox Grid.Row="3" x:Name="lyricsTextBox" FontStyle="Italic"  Text="Lyrics go here..." Padding="3" GotFocus="lyricsTextBox_GotFocus" Margin="4,4" LostFocus="lyricsTextBox_LostFocus" HorizontalAlignment="Stretch"></TextBox>
-            </Grid>
+                    <Label Grid.Row="0" Content="Playlist Name:"></Label>
+                    <TextBox Grid.Row="1" x:Name="playlistTextBox" FontStyle="Italic" Text="LockdownHits" Padding="3" Margin="4,4" GotFocus="playlistTextBox_GotFocus" LostFocus="playlistTextBox_LostFocus" ></TextBox>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Name="loginButton" Content="Login" Click="loginButton_Click" HorizontalAlignment="Left" Margin="10,5" Padding="3"></Button>
-                <Button x:Name="searchButton" Content="Search" Click="searchButton_Click" HorizontalAlignment="Right" Padding="3" Margin="0,5"></Button>
+                    <Label Grid.Row="2" Content="Lyrics contain word(s):"></Label>
+                    <TextBox Grid.Row="3" x:Name="lyricsTextBox" FontStyle="Italic"  Text="Lyrics go here..." Padding="3" GotFocus="lyricsTextBox_GotFocus" Margin="4,4" LostFocus="lyricsTextBox_LostFocus" HorizontalAlignment="Stretch"></TextBox>
+                </Grid>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="loginButton" Content="Login" Click="loginButton_Click" HorizontalAlignment="Left" Margin="10,5" Padding="3"></Button>
+                    <Button x:Name="searchButton" Content="Search" Click="searchButton_Click" HorizontalAlignment="Right" Padding="3" Margin="0,5"></Button>
+                </StackPanel>
             </StackPanel>
+
+            <Label Name="songLabel" Content="Song Name:" Margin="10,0"></Label>
+
+            <Grid Name="_results" Margin="20,0">
+                <TextBlock Panel.ZIndex="1" Name="_lyricsLabel" TextAlignment="Center" HorizontalAlignment="Center" Margin="10,0"></TextBlock>
+
+                <ProgressBar Panel.ZIndex="2" x:Name="searchProgressBar" IsIndeterminate="True" VerticalAlignment="Center" HorizontalAlignment="Center" Width="130" Margin="0,20,0,0" Height="5"></ProgressBar>
+                <Label Panel.ZIndex="3" Name="progressLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Looking up song..." Margin="0,-10,0,5"></Label>
+            </Grid>
         </StackPanel>
-
-        <Label Name="songLabel" Content="Song Name:" Margin="10,0"></Label>
-
-        <Grid Name="_results" Margin="20,0">
-            <TextBlock Panel.ZIndex="1" Name="_lyricsLabel" TextAlignment="Center" HorizontalAlignment="Center" Margin="10,0"></TextBlock>
-
-            <ProgressBar Panel.ZIndex="2" x:Name="searchProgressBar" IsIndeterminate="True" VerticalAlignment="Center" HorizontalAlignment="Center" Width="130" Margin="0,20,0,0" Height="5"></ProgressBar>
-            <Label Panel.ZIndex="3" Name="progressLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Looking up song..." Margin="0,-10,0,5"></Label>
-        </Grid>
-    </StackPanel>
-</Window>
+    </Grid>
+    
+</mah:MetroWindow>
