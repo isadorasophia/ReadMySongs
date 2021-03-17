@@ -1,8 +1,10 @@
 ﻿using AsyncSongs.Genius;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace AsyncSongs.ReadSongs
 {
+    [DebuggerDisplay("{Name} by {Artist}")]
     public class Song
     {
         public string Name { get; private set; }

@@ -34,7 +34,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Label Grid.Row="0" Content="Playlist Name:"></Label>
-                <TextBox Grid.Row="1" x:Name="playlistTextBox" FontStyle="Italic" Text="Playlist name goes here..." Padding="3" Margin="4,4" GotFocus="playlistTextBox_GotFocus" LostFocus="playlistTextBox_LostFocus" ></TextBox>
+                <TextBox Grid.Row="1" x:Name="playlistTextBox" FontStyle="Italic" Text="LockdownHits" Padding="3" Margin="4,4" GotFocus="playlistTextBox_GotFocus" LostFocus="playlistTextBox_LostFocus" ></TextBox>
 
                 <Label Grid.Row="2" Content="Lyrics contain word(s):"></Label>
                 <TextBox Grid.Row="3" x:Name="lyricsTextBox" FontStyle="Italic"  Text="Lyrics go here..." Padding="3" GotFocus="lyricsTextBox_GotFocus" Margin="4,4" LostFocus="lyricsTextBox_LostFocus" HorizontalAlignment="Stretch"></TextBox>
